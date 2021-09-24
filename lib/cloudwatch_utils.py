@@ -1,10 +1,3 @@
-import boto3
-
-
-def get_cloudwatch_client():
-    return boto3.client('cloudwatch')
-
-
 def create_dimension(name, value):
     return {
         'Name': name,
