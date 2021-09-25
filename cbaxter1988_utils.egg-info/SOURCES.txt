@@ -7,6 +7,7 @@ lib/__init__.py
 lib/aws_utils.py
 lib/cloudwatch_utils.py
 lib/core_utils.py
+lib/dataclass_utils.py
 lib/decorators.py
 lib/iter_utils.py
 lib/log_utils.py
