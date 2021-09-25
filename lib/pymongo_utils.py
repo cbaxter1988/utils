@@ -3,7 +3,7 @@ from typing import Union, List
 from bson import ObjectId
 from car_finder.models.pagination_models import PaginationPage, NewPage
 from car_finder.utils.core_utils import clone_item
-from lib.pagination_utils import Paginator
+from lib.pagination_utils import PyMongoPaginator
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
@@ -95,8 +95,8 @@ def get_page_from_collection(collection: Collection, query: dict, limit, last_it
     )
 
 
-def get_pages_from_collection(collection: Collection, query: dict, limit: int) -> Paginator:
-    paginator = Paginator()
+def get_pages_from_collection(collection: Collection, query: dict, limit: int) -> PyMongoPaginator:
+    paginator = PyMongoPaginator()
 
     total_records = collection.find(query).count()
     total_pages = round(total_records / limit)

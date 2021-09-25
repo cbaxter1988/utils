@@ -1,5 +1,5 @@
 from lib.data_access import DAOMixinInterface, BaseDAO
-from lib.pagination_utils import NewPage, Paginator
+from lib.pagination_utils import NewPage, PyMongoPaginator
 from lib.pymongo_utils import (
     get_client,
     get_collection,
@@ -42,7 +42,7 @@ class _MongoDBPymongoMixin(DAOMixinInterface):
     def get_page(self, query, limit_per_page=500, last_item_id=None) -> NewPage:
         return get_page_from_collection(self.collection, query=query, limit=limit_per_page, last_item_id=last_item_id)
 
-    def get_pages(self, query, limit_per_page=500) -> Paginator:
+    def get_pages(self, query, limit_per_page=500) -> PyMongoPaginator:
         return get_pages_from_collection(self.collection, query=query, limit=limit_per_page)
 
 
