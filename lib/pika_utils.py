@@ -175,3 +175,13 @@ def acknowledge_message(channel: BlockingChannel, delivery_tag):
 
 def nacknowledge_message(channel: BlockingChannel, delivery_tag):
     channel.basic_nack(delivery_tag=delivery_tag)
+
+
+def make_basic_pika_publisher(amqp_url, exchange, queue, routing_key) -> BasicPikaPublisher:
+    adapter = BlockingConnectionAdapter(amqp_url=amqp_url)
+    return BasicPikaPublisher(connection_adapter=adapter, queue=queue, exchange=exchange, routing_key=routing_key)
+
+
+def make_basic_pika_consumer(amqp_url, queue, on_message_callback: callable) -> BasicPikaConsumer:
+    adapter = BlockingConnectionAdapter(amqp_url=amqp_url)
+    return BasicPikaConsumer(connection_adapter=adapter, queue=queue, on_message_callback=on_message_callback)
