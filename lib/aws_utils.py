@@ -17,10 +17,16 @@ def get_s3_client():
 def get_dynamo_client():
     return get_service_client(service="dynamo")
 
+
 def get_cloudwatch_client():
     return get_service_client(service='cloudwatch')
+
 
 def get_dynamo_table(table_id: str):
     resource = boto3.resource('dynamodb')
 
     return resource.Table(table_id)
+
+
+def get_event_bridge_client():
+    return get_service_client('events')
