@@ -11,3 +11,4 @@ pyparsing==2.4.7
 pytest==6.2.5
 setuptools==56.0.0
 toml==0.10.2
+cbaxter1988-models
