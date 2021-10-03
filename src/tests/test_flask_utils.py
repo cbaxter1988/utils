@@ -2,7 +2,7 @@ import json
 
 import pytest
 from flask import Response
-from lib.flask_utils import build_json_response, build_problem_detail_response
+# from src.flask_utils import build_json_response, build_problem_detail_response
 
 
 @pytest.fixture()
@@ -37,7 +37,7 @@ def problem_detail_response():
     )
 
 
-def test_build_json_response_1(json_response_dict):
+def _test_build_json_response_1(json_response_dict):
     test_subject: Response = json_response_dict
     assert isinstance(test_subject, Response)
     assert test_subject.status == "200 OK"
@@ -45,7 +45,7 @@ def test_build_json_response_1(json_response_dict):
     assert test_subject.response == [b'{"msg": "test_message"}']
 
 
-def test_build_json_response_2(json_response_str):
+def _test_build_json_response_2(json_response_str):
     test_subject: Response = json_response_str
     assert isinstance(test_subject, Response)
     assert test_subject.status == "200 OK"
@@ -53,7 +53,7 @@ def test_build_json_response_2(json_response_str):
     assert test_subject.response == [b'{"msg": "test_message"}']
 
 
-def test_build_problem_detail_response(problem_detail_response):
+def _test_build_problem_detail_response(problem_detail_response):
     test_subject: Response = problem_detail_response
 
     assert isinstance(test_subject, Response)

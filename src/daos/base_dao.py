@@ -1,9 +1,5 @@
 from abc import ABC, abstractmethod
 
-from lib.log_utils import get_logger
-
-logger = get_logger("dao")
-
 
 class DAOMixinInterface(ABC):
 

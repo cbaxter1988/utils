@@ -4,7 +4,7 @@ from http import HTTPStatus
 from typing import Union, List
 
 import flask
-from cbaxter1988_models.src.http_response_models import ProblemDetailModel, PROBLEM_DETAIL_HEADER_JSON
+from src.models.http_models.problem_detail_rfc_7807_model import ProblemDetailModel, PROBLEM_DETAIL_HEADER_JSON
 
 
 def build_problem_detail_response(

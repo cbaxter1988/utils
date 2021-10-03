@@ -1,8 +1,8 @@
 from typing import Any
 
 import pika
-from lib.log_utils import get_logger
-from lib.pika_utils import (
+from src.log_utils import get_logger
+from src.pika_utils import (
     get_blocking_connection,
     open_channel_from_connection,
     set_channel_qos,

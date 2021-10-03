@@ -1,6 +1,5 @@
-from lib.data_access import DAOMixinInterface, BaseDAO
-from lib.pagination_utils import NewPage, PyMongoPaginator
-from lib.pymongo_utils import (
+from src.daos.base_dao import DAOMixinInterface, BaseDAO
+from src.pymongo_utils import (
     get_client,
     get_collection,
     get_item,
@@ -15,8 +14,9 @@ from lib.pymongo_utils import (
     UpdateResult,
     Cursor,
     get_page_from_collection,
-    get_pages_from_collection
-
+    get_pages_from_collection,
+BasePage,
+BasePaginator
 )
 
 
@@ -39,15 +39,15 @@ class _MongoDBPymongoMixin(DAOMixinInterface):
     def scan_items(self):
         return query_items(collection=self.collection, query={})
 
-    def get_page(self, query, limit_per_page=500, last_item_id=None) -> NewPage:
+    def get_page(self, query, limit_per_page=500, last_item_id=None) -> BasePage:
         return get_page_from_collection(self.collection, query=query, limit=limit_per_page, last_item_id=last_item_id)
 
-    def get_pages(self, query, limit_per_page=500) -> PyMongoPaginator:
-        return get_pages_from_collection(self.collection, query=query, limit=limit_per_page)
+    def get_pages(self, query, limit_per_page=500) -> BasePaginator:
+        return get_pages_from_collection(self.collection, query=query, page_size=limit_per_page)
 
 
 class MongoDBDAO(BaseDAO, _MongoDBPymongoMixin):
-    def __init__(self, host, port, db, collection):
+    def __init__(self, host: str, port: int, db: str, collection: str):
         self._host = host
         self._port = port
 
@@ -61,7 +61,7 @@ class MongoDBDAO(BaseDAO, _MongoDBPymongoMixin):
         return self._collection
 
     @collection.setter
-    def collection(self, collection):
+    def collection(self, collection: str):
         self._collection = get_collection(self._db, collection)
 
     @property

@@ -1,15 +1,13 @@
 from typing import Union, List
 
 from bson import ObjectId
-from car_finder.models.pagination_models import PaginationPage, NewPage
-from car_finder.utils.core_utils import clone_item
-from lib.pagination_utils import PyMongoPaginator
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.database import Database
 from pymongo.errors import DuplicateKeyError
 from pymongo.results import DeleteResult, UpdateResult, InsertOneResult, InsertManyResult
+from src.pagination_utils import BasePaginator, BasePage
 
 DEFAULT_ITEM_KEY = "_id"
 
@@ -78,7 +76,7 @@ def get_item(collection: Collection, item_id: Union[str, int], item_key=DEFAULT_
     )
 
 
-def get_page_from_collection(collection: Collection, query: dict, limit, last_item_id=None) -> NewPage:
+def get_page_from_collection(collection: Collection, query: dict, limit, last_item_id=None) -> BasePage:
     total_records = collection.find(query).count()
 
     if last_item_id:
@@ -95,24 +93,10 @@ def get_page_from_collection(collection: Collection, query: dict, limit, last_it
     )
 
 
-def get_pages_from_collection(collection: Collection, query: dict, limit: int) -> PyMongoPaginator:
-    paginator = PyMongoPaginator()
-
-    total_records = collection.find(query).count()
-    total_pages = round(total_records / limit)
-    paginator.total_records = total_records
-
-    for i in range(total_pages):
-        i += 1
-
-        _page = get_page_from_collection(collection=collection, query=query, limit=limit)
-        paginator.add_page(page=PaginationPage(
-            cursor=_page.cursor,
-            next_page=i + 1 if i < total_pages else i,
-            current_page=i,
-            item_count=limit
-        ))
-
+def get_pages_from_collection(collection: Collection, query: dict, page_size: int) -> BasePaginator:
+    paginator = BasePaginator()
+    items = collection.find(query)
+    paginator.make_pages(items=items, page_size=page_size)
     return paginator
 
 
@@ -137,6 +121,7 @@ def add_many_items(collection: Collection, items: List[dict], ordered: bool = Tr
         documents=items,
         ordered=ordered
     )
+
 
 def check_for_items(collection: Collection):
     collection.aggregate()

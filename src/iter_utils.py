@@ -2,13 +2,12 @@ from collections import defaultdict
 from functools import reduce
 from typing import Iterable, List, Any
 
-from lib.decorators import log_invocation
-from lib.utils.log_utils import get_logger
+from src.log_utils import get_logger
 
 logger = get_logger(__name__)
 
 
-def map_list(func: callable, i: Iterable):
+def map_list(func: callable, i: Iterable) -> List[Any]:
     """
     Runs a map function on iterable and returns a list
 
@@ -30,7 +29,7 @@ def filter_list(func: callable, i: Iterable) -> List[Any]:
     return list(filter(func, i))
 
 
-def reduce_items(field, items: List[Any]):
+def reduce_items(field, items: List[Any]) -> List[Any]:
     def reducer(acc, val):
         if isinstance(acc, dict):
             acc[val[field]].append(val)
@@ -38,3 +37,4 @@ def reduce_items(field, items: List[Any]):
         return acc
 
     return reduce(reducer, items, defaultdict(list))
+
