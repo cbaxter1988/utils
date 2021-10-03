@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cbaxter1988-utils
-Version: 0.2.2
+Version: 0.2.3
 Summary: A Package containing my utils
 Home-page: https://github.com/byt3-m3/utils
 Author: Courtney S Baxter Jr
@@ -11,34 +11,39 @@ Description-Content-Type: text/markdown
 
 # cbaxter1988_utils
 
-This Pacakges is a collection of helpful uitilies I utilize in numerous projects. 
+This Pacakges is a collection of helpful uitilies I utilize in numerous projects.
 
 ## Usage
 
-### Running Tests 
+### Running Tests
+
 ```text
 git clone https://github.com/byt3-m3/utils.git
 pip install -r requirements.txt 
 python invoke_tests.py
 ```
 
-### Instalation 
+### Instalation
+
 Using PIP
+
 ```text
 pip install cbaxter1988-utils 
 ```
 
 From Source
+
 ```text
 git clone https://github.com/byt3-m3/utils.git 
 python setup.py install 
 ```
 
-
-## Utilities 
+## Utilities
 
 ### core_utils
+
 Cloning Objects:
+
 ```python
 from cbaxter1988_utils import core_utils
 
@@ -47,12 +52,31 @@ cloned_list = core_utils.clone_object(original_list)
 
 ```
 
-
 ### enviornment_utils
 
+Utilities for interacting with your enviornment.
+
+Examples:
+
+```python
+from cbaxter1988_utils import environment_utils
+
+# Gets env with side-effect 
+try:
+    var = environment_utils.get_env_strict(key="AWS_REGION")
+except KeyError:
+    raise
+
+# Gets env
+var = environment_utils.get_env(key="AWS_REGION", default_value="us-east-1")
+
+# Sets env
+environment_utils.set_env(key="AWS_REGION", val="us-west-1")
+```
 
 ### pika_utils
-Utitilies for publishing and consuming messages with pika 
+
+Utitilies for publishing and consuming messages with pika
 
 ```python
 from cbaxter1988_utils import pika_utils
