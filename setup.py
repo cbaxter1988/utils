@@ -11,7 +11,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='cbaxter1988_utils',
-    version='0.2.0',
+    version='0.2.2',
     url='https://github.com/byt3-m3/utils',
     description='A Package containing my utils',
     author='Courtney S Baxter Jr',

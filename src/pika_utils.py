@@ -186,6 +186,10 @@ class BasicPikaConsumer:
         self._consume()
 
 
+def make_amqp_url(amqp_user, amqp_pw, amqp_host, amqp_port):
+    return f"amqp://{amqp_user}:{amqp_pw}@{amqp_host}:{amqp_port}"
+
+
 def validate_queue(connection: BlockingConnection, queue) -> bool:
     ch = open_channel_from_connection(connection)
     try:
