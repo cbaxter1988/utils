@@ -11,6 +11,7 @@ lib/core_utils.py
 lib/dataclass_utils.py
 lib/decorators.py
 lib/environment_utils.py
+lib/flask_utils.py
 lib/iter_utils.py
 lib/log_utils.py
 lib/pagination_utils.py
@@ -24,3 +25,5 @@ lib/data_access/__init__.py
 lib/data_access/aws_lambda_utils.py
 lib/data_access/dynamodb_utils.py
 lib/data_access/mongodb_dao.py
+lib/tests/__init__.py
+lib/tests/test_flask_utils.py
