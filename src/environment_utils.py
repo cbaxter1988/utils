@@ -24,3 +24,13 @@ def get_env(key, default_value=None):
     :return:
     """
     return os.getenv(key, default_value)
+
+def set_env(key, val):
+    """
+    Sets the env var to the val.
+
+    :param key:
+    :param val:
+    :return:
+    """
+    os.putenv(key, val)
