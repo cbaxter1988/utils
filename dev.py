@@ -1,4 +1,7 @@
 from cbaxter1988_utils import pika_utils
+from pika.adapters.blocking_connection import BlockingChannel
+from pika.spec import Basic, BasicProperties
+
 
 AMQP_USER = 'guest'
 AMQP_PW = 'guest'
