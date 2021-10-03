@@ -1,5 +1,0 @@
-setup.py
-src/cbaxter1988_utils.egg-info/PKG-INFO
-src/cbaxter1988_utils.egg-info/SOURCES.txt
-src/cbaxter1988_utils.egg-info/dependency_links.txt
-src/cbaxter1988_utils.egg-info/top_level.txt
