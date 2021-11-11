@@ -1,13 +1,13 @@
 # cbaxter1988_utils
 
-This Pacakges is a collection of helpful uitilies I utilize in numerous projects.
+These Packages are a collection of helpful utilities I utilize in numerous projects.
 
 ## Usage
 
 ### Running Tests
 
 ```text
-git clone https://github.com/byt3-m3/utils.git
+git clone https://github.com/cbaxter1988/utils.git
 pip install -r requirements.txt 
 python invoke_tests.py
 ```
@@ -23,7 +23,7 @@ pip install cbaxter1988-utils
 From Source
 
 ```text
-git clone https://github.com/byt3-m3/utils.git 
+git clone https://github.com/cbaxter1988/utils.git 
 python setup.py install 
 ```
 
@@ -69,6 +69,8 @@ Utitilies for publishing and consuming messages with pika
 
 ```python
 from cbaxter1988_utils import pika_utils
+from cbaxter1988_utils.pika_utils import BlockingChannel
+from pika.spec import Basic, BasicProperties
 
 AMQP_USER = 'guest'
 AMQP_PW = 'guest'
