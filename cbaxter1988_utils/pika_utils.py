@@ -5,11 +5,11 @@ from pika import BlockingConnection, URLParameters
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.exceptions import ChannelClosed
 from pika.exchange_type import ExchangeType
-from src.log_utils import get_logger
+from cbaxter1988_utils.log_utils import get_logger
 
 logger = get_logger(__name__)
 
-
+PREFETCH_COUNT = 1
 class PikaUtilsError(BaseException):
     "Utils Exception"
 
@@ -18,7 +18,7 @@ class BlockingConnectionAdapter:
 
     def __init__(self, amqp_url):
         self.amqp_url = amqp_url
-        self.url_params = pika.URLParameters(url=self.amqp_url)
+        self.url_params = URLParameters(url=self.amqp_url)
         self._prefetch_count = PREFETCH_COUNT
 
         self._prepare_connection()
