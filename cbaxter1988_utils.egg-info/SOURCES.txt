@@ -32,6 +32,8 @@ src/daos/base_dao.py
 src/daos/dynamodb_dao.py
 src/daos/mongodb_dao.py
 src/models/__init__.py
+src/models/ddd_models.py
+src/models/factory.py
 src/models/http_models/__init__.py
 src/models/http_models/problem_detail_rfc_7807_model.py
 src/tests/__init__.py
@@ -41,3 +43,4 @@ src/tests/test_core_utils.py
 src/tests/test_dataclass_utils.py
 src/tests/test_flask_utils.py
 src/tests/test_pagination_utils.py
+src/tests/test_pymongo_utils.py
