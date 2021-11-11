@@ -2,7 +2,7 @@ import json
 
 import pytest
 from flask import Response
-# from src.flask_utils import build_json_response, build_problem_detail_response
+from cbaxter1988_utils.flask_utils import build_json_response, build_problem_detail_response
 
 
 @pytest.fixture()

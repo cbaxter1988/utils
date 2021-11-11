@@ -1,7 +1,9 @@
-from src.aws_utils import get_event_bridge_client
-from typing import Any
-import json
 import base64
+import json
+
+from cbaxter1988_utils.aws_utils import get_event_bridge_client
+
+
 def _get_client():
     return get_event_bridge_client()
 

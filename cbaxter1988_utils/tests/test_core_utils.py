@@ -1,4 +1,4 @@
-from src.core_utils import clone_object, check_list_len
+from cbaxter1988_utils.core_utils import clone_object, check_list_len
 
 
 def test_clone_object(person):

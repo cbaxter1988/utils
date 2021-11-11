@@ -2,7 +2,10 @@ from cbaxter1988_utils import environment_utils
 from cbaxter1988_utils import pika_utils
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic, BasicProperties
+from cbaxter1988_utils.src.models.factory import Factory, ValueObject
+from dataclasses import dataclass
 
+model_factory = Factory()
 
 def pika_example():
     AMQP_USER = 'guest'
@@ -49,3 +52,21 @@ def eviornment_example_1():
 
     # Sets env
     environment_utils.set_env(key="AWS_REGION", val="us-west-1")
+
+def value_object_example():
+    @dataclass(frozen=True)
+    class PersonValueObject(ValueObject):
+        first_name: str
+        last_name: str
+
+    data = {
+        "first_name": "courtney",
+        "last_name": "baxter",
+    }
+    # value_object = model_factory.make_value_object(**data)
+    # print(value_object)
+    value_object = PersonValueObject(**data)
+    assert isinstance(value_object, ValueObject)
+
+    print(value_object)
+value_object_example()

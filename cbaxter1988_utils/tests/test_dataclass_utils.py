@@ -1,6 +1,6 @@
 import pytest
 from dataclasses import dataclass
-from src.dataclass_utils import model_to_dict
+from cbaxter1988_utils.dataclass_utils import model_to_dict
 
 
 

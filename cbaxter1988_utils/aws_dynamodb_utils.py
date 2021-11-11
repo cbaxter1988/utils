@@ -1,7 +1,7 @@
 from typing import List
 
 from boto3.dynamodb.conditions import Key
-from src.aws_utils import get_dynamo_table
+from cbaxter1988_utils.aws_utils import get_dynamo_table
 
 
 def _get_table(table_id):

@@ -1,5 +1,9 @@
-from src.daos.base_dao import DAOMixinInterface, BaseDAO
-from src.pymongo_utils import (
+from cbaxter1988_utils.daos.base_dao import DAOMixinInterface, BaseDAO
+from cbaxter1988_utils.pagination_utils import (
+    BasePage,
+    BasePaginator
+)
+from cbaxter1988_utils.pymongo_utils import (
     get_client,
     get_collection,
     get_item,
@@ -15,8 +19,7 @@ from src.pymongo_utils import (
     Cursor,
     get_page_from_collection,
     get_pages_from_collection,
-BasePage,
-BasePaginator
+
 )
 
 

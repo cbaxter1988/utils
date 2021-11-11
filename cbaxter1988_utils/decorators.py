@@ -1,4 +1,4 @@
-from car_finder.utils.log_utils import get_logger
+from cbaxter1988_utils.log_utils import get_logger
 
 logger = get_logger(__name__)
 

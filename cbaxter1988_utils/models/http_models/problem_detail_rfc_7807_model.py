@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass, field, asdict
 
-from src.models import BaseModel
+from cbaxter1988_utils.models import BaseModel
 
 PROBLEM_DETAIL_HEADER_JSON = {
     "content-type": "application/problem+json"

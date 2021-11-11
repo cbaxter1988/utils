@@ -1,5 +1,5 @@
 import pytest
-from src.pagination_utils import BasePaginator, BasePage
+from cbaxter1988_utils.pagination_utils import BasePaginator, BasePage
 
 
 @pytest.fixture

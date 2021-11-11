@@ -1,5 +1,5 @@
 import boto3
-from src.environment_utils import get_env
+from cbaxter1988_utils.environment_utils import get_env
 
 """
 Collection of Utilities interacting with the boto3 library

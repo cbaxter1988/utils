@@ -1,5 +1,5 @@
-from src.daos.dynamodb_dao import DynamoDBDAO
-from src.daos.mongodb_dao import MongoDBDAO
+from cbaxter1988_utils.src.daos.dynamodb_dao import DynamoDBDAO
+from cbaxter1988_utils.src.daos.mongodb_dao import MongoDBDAO
 
 __all__ = [
     DynamoDBDAO,

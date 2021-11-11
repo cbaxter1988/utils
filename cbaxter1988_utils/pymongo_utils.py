@@ -1,16 +1,26 @@
 from typing import Union, List
+from uuid import UUID
 
 from bson import ObjectId
+from cbaxter1988_utils.log_utils import get_logger
+from cbaxter1988_utils.pagination_utils import BasePaginator, BasePage
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.database import Database
 from pymongo.errors import DuplicateKeyError
 from pymongo.results import DeleteResult, UpdateResult, InsertOneResult, InsertManyResult
-from src.pagination_utils import BasePaginator, BasePage
 
 DEFAULT_ITEM_KEY = "_id"
 
+logger = get_logger(__name__)
+
+
+class InvalidUpdate(BaseException):
+    """Exception for InvalidUpdate"""
+
+class InvalidDelete(BaseException):
+    """Exception for InvalidUpdate"""
 
 def make_objectid() -> ObjectId:
     return ObjectId()
@@ -68,7 +78,7 @@ def delete_item(collection: Collection, item_id: Union[str, int], item_key=DEFAU
     )
 
 
-def get_item(collection: Collection, item_id: Union[str, int], item_key=DEFAULT_ITEM_KEY) -> Cursor:
+def get_item(collection: Collection, item_id: Union[str, int, UUID], item_key=DEFAULT_ITEM_KEY) -> Cursor:
     return collection.find(
         {
             f"{item_key}": item_id
@@ -125,3 +135,50 @@ def add_many_items(collection: Collection, items: List[dict], ordered: bool = Tr
 
 def check_for_items(collection: Collection):
     collection.aggregate()
+
+
+def safe_update_item(collection: Collection, item_id: Union[UUID, str], expected_version: int, new_values: dict):
+    """
+    Preforms Optimistic Check by validating item version. If the expected_version does
+    not match the document version, the transation will not be applied.
+
+    Useful in distributed systems requiring safe updates to mongo records
+
+
+    :param collection:
+    :param item_id:
+    :param expected_version:
+    :param new_values:
+    :return:
+    """
+    result = collection.update_one(
+        filter={"version": expected_version, "_id": item_id},
+        update={
+            "$set": new_values,
+            "$inc": {
+                "version": 1
+            }
+        }
+    )
+
+    if result.raw_result.get("updatedExisting") is False:
+        item = collection.find(filter={"_id": item_id}).next()
+        raise InvalidUpdate(
+            f"Version Number Mismatch, Expected:  '{expected_version}', Document Version: '{item.get('version')}'"
+        )
+
+    return result
+
+
+def safe_delete_item(collection: Collection, item_id: Union[UUID, str], expected_version: int) -> DeleteResult:
+    result = collection.delete_one(
+        filter={"version": expected_version, "_id": item_id},
+
+    )
+    if result.raw_result.get("n") == 0:
+        item = collection.find(filter={"_id": item_id}).next()
+        raise InvalidDelete(
+            f"Version Number Mismatch, Expected:  '{expected_version}', Document Version: '{item.get('version')}'"
+        )
+
+    return result

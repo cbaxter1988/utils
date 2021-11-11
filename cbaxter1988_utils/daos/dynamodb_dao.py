@@ -1,5 +1,5 @@
-from src.aws_dynamodb_utils import save_item, query_table_by_id, scan_table
-from src.daos.base_dao import BaseDAO
+from cbaxter1988_utils.aws_dynamodb_utils import save_item, query_table_by_id, scan_table
+from cbaxter1988_utils.daos.base_dao import BaseDAO
 
 
 class DynamoDBDAO(BaseDAO):
