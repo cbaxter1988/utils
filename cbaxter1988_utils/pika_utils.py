@@ -1,17 +1,19 @@
 import json
 from typing import Any
 
+from cbaxter1988_utils.log_utils import get_logger
 from pika import BlockingConnection, URLParameters
 from pika.adapters.blocking_connection import BlockingChannel
-from pika.exceptions import ChannelClosed
+from pika.exceptions import ChannelClosed, ChannelClosedByBroker
 from pika.exchange_type import ExchangeType
-from cbaxter1988_utils.log_utils import get_logger
 
 logger = get_logger(__name__)
 
 PREFETCH_COUNT = 1
+
+
 class PikaUtilsError(BaseException):
-    "Utils Exception"
+    """Utils Exception"""
 
 
 class BlockingConnectionAdapter:
