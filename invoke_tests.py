@@ -1,10 +1,11 @@
 # content of myinvoke.py
-import pytest
-import sys
 import os
-import pathlib
+import sys
 
-os.chdir("src")
+import pytest
+
+os.chdir("cbaxter1988_utils")
+
 
 class MyPlugin:
     def pytest_sessionfinish(self):
@@ -15,6 +16,5 @@ if __name__ == "__main__":
     sys.path.append(
         os.getcwd()
     )
-
 
     sys.exit(pytest.main(["-q"], plugins=[MyPlugin()]))
