@@ -205,10 +205,10 @@ def validate_queue(connection: BlockingConnection, queue) -> bool:
         return False
 
 
-def create_queue(connection: BlockingConnection, queue) -> bool:
+def create_queue(connection: BlockingConnection, queue, arguments: dict = None) -> bool:
     ch = open_channel_from_connection(connection)
     logger.info(f"Creating Queue: '{queue}'")
-    if ch.queue_declare(queue=queue):
+    if ch.queue_declare(queue=queue, arguments=arguments):
         close_channel(ch)
         return True
     else:
