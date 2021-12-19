@@ -215,7 +215,7 @@ def validate_queue(connection: BlockingConnection, queue) -> bool:
 
 def create_queue(connection: BlockingConnection, queue, arguments: dict = None) -> bool:
     ch = open_channel_from_connection(connection)
-    logger.info(f"Creating Queue: '{queue}'")
+    logger.debug(f"Creating Queue: '{queue}'")
     if ch.queue_declare(queue=queue, arguments=arguments):
         close_channel(ch)
         return True
@@ -228,7 +228,7 @@ def delete_queue(connection: BlockingConnection, queue, if_empty=False, if_unuse
     results = ch.queue_delete(queue=queue, if_empty=if_empty, if_unused=if_unused)
     close_channel(ch)
     if results:
-        logger.info(f"Removing Queue: {queue}")
+        logger.debug(f"Removing Queue: {queue}")
         return True
     else:
         return False
@@ -237,7 +237,7 @@ def delete_queue(connection: BlockingConnection, queue, if_empty=False, if_unuse
 def purge_queue(connection: BlockingConnection, queue):
     ch = open_channel_from_connection(connection)
     if ch.is_open:
-        logger.info(f"Purging Queue: {queue}")
+        logger.debug(f"Purging Queue: {queue}")
         ch.queue_purge(queue=queue)
         return True
 
@@ -274,7 +274,7 @@ def bind_queue(connection: BlockingConnection, queue, exchange, routing_key) -> 
     ch = open_channel_from_connection(connection)
     try:
         ch.queue_bind(queue=queue, exchange=exchange, routing_key=routing_key)
-        logger.info(f"Binding ({exchange}, {queue}, {routing_key})")
+        logger.debug(f"Binding ({exchange}, {queue}, {routing_key})")
     except Exception:
         raise
 
