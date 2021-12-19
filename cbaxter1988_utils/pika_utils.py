@@ -75,13 +75,21 @@ class BasicPikaPublisher:
 
     def publish_message(self, body: Any):
         try:
+            bind_queue(
+                connection=self.connection_adapter.connection,
+                queue=self.queue,
+                exchange=self.exchange,
+                routing_key=self.routing_key
+            )
+
             publish_message(
                 connection=self.connection_adapter.connection,
                 exchange=self.exchange,
                 routing_key=self.routing_key,
                 data=body
             )
-        except ChannelClosedByBroker:
+        except ChannelClosedByBroker as err:
+            logger.error(f'{err}')
             self.bind_routing_key(exchange=self.exchange, queue=self.queue, routing_key=self.routing_key)
             publish_message(
                 self.connection_adapter.connection,
