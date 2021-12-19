@@ -363,6 +363,42 @@ def nacknowledge_message(channel: BlockingChannel, delivery_tag):
     channel.basic_nack(delivery_tag=delivery_tag)
 
 
+class PikaQueueServiceWrapper:
+    def __init__(self, amqp_url: str):
+        self.amqp_url = amqp_url
+
+        self.connection_adapter = BlockingConnectionAdapter(
+            amqp_url=amqp_url
+        )
+
+    def create_queue(
+            self,
+            queue: str,
+            dlq_queue: str = None,
+            dlq_support: bool = False,
+            dlq_exchange: str = None,
+            dlq_routing_key: str = None
+    ):
+        queue_arguments = {}
+
+        if dlq_support:
+            create_queue(connection=self.connection_adapter.connection, queue=dlq_queue)
+            create_exchange(connection=self.connection_adapter.connection, exchange=dlq_exchange)
+            bind_queue(connection=self.connection_adapter.connection, queue=dlq_queue, exchange=dlq_exchange,
+                       routing_key=dlq_routing_key)
+
+            queue_arguments['x-dead-letter-exchange'] = dlq_exchange
+            queue_arguments['x-dead-letter-routing-key'] = dlq_routing_key
+
+        create_queue(connection=self.connection_adapter.connection, queue=queue, arguments=queue_arguments)
+
+    def purge_queue(self, queue: str):
+        purge_queue(connection=self.connection_adapter.connection, queue=queue)
+
+    def delete_queue(self, queue: str, if_empty: bool = True):
+        delete_queue(connection=self.connection_adapter.connection, queue=queue, if_empty=if_empty)
+
+
 def make_basic_pika_publisher(amqp_url, exchange, queue, routing_key) -> BasicPikaPublisher:
     adapter = BlockingConnectionAdapter(amqp_url=amqp_url)
     return BasicPikaPublisher(connection_adapter=adapter, queue=queue, exchange=exchange, routing_key=routing_key)
