@@ -43,4 +43,5 @@ cbaxter1988_utils/tests/test_core_utils.py
 cbaxter1988_utils/tests/test_dataclass_utils.py
 cbaxter1988_utils/tests/test_flask_utils.py
 cbaxter1988_utils/tests/test_pagination_utils.py
+cbaxter1988_utils/tests/test_pika_utils.py
 cbaxter1988_utils/tests/test_pymongo_utils.py
