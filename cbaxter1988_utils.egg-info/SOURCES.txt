@@ -16,7 +16,6 @@ cbaxter1988_utils/flask_utils.py
 cbaxter1988_utils/iter_utils.py
 cbaxter1988_utils/log_utils.py
 cbaxter1988_utils/pagination_utils.py
-cbaxter1988_utils/pika_pub_sub_utils.py
 cbaxter1988_utils/pika_utils.py
 cbaxter1988_utils/pymongo_utils.py
 cbaxter1988_utils/requests_utils.py
