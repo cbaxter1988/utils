@@ -77,7 +77,7 @@ def test_basic_publisher_when_publishing_message(blocking_connection_adapter_moc
     blocking_connection_adapter_mock.assert_called()
 
 
-def _test_pika_queue_service_wrapper_when_creating_queue(
+def test_pika_queue_service_wrapper_when_creating_queue(
         blocking_connection_adapter_mock,
         pika_queue_service_wrapper_testable,
         test_queue_name,

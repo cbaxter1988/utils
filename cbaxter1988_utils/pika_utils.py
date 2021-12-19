@@ -215,12 +215,11 @@ def validate_queue(connection: BlockingConnection, queue) -> bool:
 
 def create_queue(connection: BlockingConnection, queue, arguments: dict = None) -> bool:
     ch = open_channel_from_connection(connection)
-    logger.debug(f"Creating Queue: '{queue}'")
-    if ch.queue_declare(queue=queue, arguments=arguments):
-        close_channel(ch)
-        return True
-    else:
-        return False
+    logger.info(f"Creating/Validating Queue='{queue}'")
+    result = ch.queue_declare(queue=queue, arguments=arguments)
+
+    close_channel(ch)
+    return result
 
 
 def delete_queue(connection: BlockingConnection, queue, if_empty=False, if_unused=False) -> bool:
@@ -249,7 +248,9 @@ def create_exchange(connection: BlockingConnection, exchange: str, exchange_type
     ch = open_channel_from_connection(connection)
     if ExchangeType(exchange_type):
         try:
+            logger.info(f'Creating/Validating Exchange={exchange}, ExchangeType={exchange_type}')
             ch.exchange_declare(exchange=exchange, exchange_type=ExchangeType(exchange_type).value, durable=True)
+
         except Exception:
             raise
 
@@ -273,8 +274,9 @@ def delete_exchange(connection: BlockingConnection, exchange, if_unused=False) -
 def bind_queue(connection: BlockingConnection, queue, exchange, routing_key) -> bool:
     ch = open_channel_from_connection(connection)
     try:
+        logger.info(f"Binding Exchange='{exchange}' to Queue='{queue}' with Key='{routing_key}')")
         ch.queue_bind(queue=queue, exchange=exchange, routing_key=routing_key)
-        logger.debug(f"Binding ({exchange}, {queue}, {routing_key})")
+
     except Exception:
         raise
 
@@ -296,7 +298,7 @@ def unbind_queue(connection: BlockingConnection, queue, exchange, routing_key) -
 def open_channel_from_connection(connection: BlockingConnection) -> BlockingChannel:
     if connection.is_open:
         channel = connection.channel()
-        logger.info(f"Opened Channel: {channel.channel_number}")
+        logger.debug(f"Opened Channel: {channel.channel_number}")
         return channel
     else:
         raise PikaUtilsError(f"{connection} is Closed")
@@ -304,7 +306,7 @@ def open_channel_from_connection(connection: BlockingConnection) -> BlockingChan
 
 def close_channel(channel: BlockingChannel):
     if channel.is_open:
-        logger.info(f"Closing Channel: {channel.channel_number}")
+        logger.debug(f"Closing Channel: {channel.channel_number}")
         channel.close()
         return True
     else:
@@ -389,6 +391,8 @@ class PikaQueueServiceWrapper:
 
             queue_arguments['x-dead-letter-exchange'] = dlq_exchange
             queue_arguments['x-dead-letter-routing-key'] = dlq_routing_key
+
+            logger.info(f'Prepared Pika Queue Arguments={queue_arguments}')
 
         create_queue(connection=self.connection_adapter.connection, queue=queue, arguments=queue_arguments)
 
