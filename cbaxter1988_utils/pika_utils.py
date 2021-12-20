@@ -150,6 +150,8 @@ class BasicPikaConsumer:
         self.on_message_callback = on_message_callback
         self.queue = queue
 
+        self.pika_queue_service_wrapper = PikaQueueServiceWrapper(amqp_url=self.connection_adapter.amqp_url)
+
     def _consume(self):
         if self.connection_adapter.connection.is_open and self.connection_adapter.channel.is_open:
 
@@ -172,17 +174,21 @@ class BasicPikaConsumer:
 
     def _validate_queue(self):
         logger.info(f"Validating Queue: '{self.queue}'")
-        conn = self.connection_adapter.connection
-        if not validate_queue(conn, queue=self.queue):
-            logger.info(f"{self.queue} not present")
-            create_queue(conn, queue=self.queue)
+        # self.pika_queue_service_wrapper.create_queue(
+        #     queue=self.queue,
+        #
+        # )
+        # conn = self.connection_adapter.connection
+        # if not validate_queue(conn, queue=self.queue):
+        #     logger.info(f"{self.queue} not present")
+        #     create_queue(conn, queue=self.queue)
 
-
-        else:
-            logger.info(f'({self.queue}) has been validated')
+        #
+        # else:
+        #     logger.info(f'({self.queue}) has been validated')
 
     def run(self):
-        self._validate_queue()
+        # self._validate_queue()
 
         if self.connection_adapter.connection.is_closed:
             logger.info("Connection Closed, Reopening")
