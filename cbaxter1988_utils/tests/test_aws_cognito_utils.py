@@ -26,7 +26,7 @@ def test_user_email():
 
 
 def test_add_new_user(
-        # aws_client_mock,
+        aws_client_mock,
         test_user_name,
         test_user_email,
         test_user_pool_id
@@ -37,16 +37,16 @@ def test_add_new_user(
         username=test_user_name
     )
 
-    # aws_client_mock.assert_called()
+    aws_client_mock.assert_called()
 
 
 def test_delete_user(
-        # aws_client_mock,
+        aws_client_mock,
         test_user_pool_id,
         test_user_name
 ):
     delete_user(pool_id=test_user_pool_id, username=test_user_name)
-    # aws_client_mock.assert_called()
+    aws_client_mock.assert_called()
 
 
 def test_list_user_pools(aws_client_mock):
