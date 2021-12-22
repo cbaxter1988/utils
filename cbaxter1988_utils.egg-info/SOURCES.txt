@@ -3,6 +3,8 @@ README.md
 requirements.txt
 setup.py
 cbaxter1988_utils/__init__.py
+cbaxter1988_utils/auth_utils.py
+cbaxter1988_utils/aws_cognito_utils.py
 cbaxter1988_utils/aws_dynamodb_utils.py
 cbaxter1988_utils/aws_event_bridge_utils.py
 cbaxter1988_utils/aws_lambda_utils.py
@@ -38,6 +40,8 @@ cbaxter1988_utils/models/http_models/problem_detail_rfc_7807_model.py
 cbaxter1988_utils/tests/__init__.py
 cbaxter1988_utils/tests/conftest.py
 cbaxter1988_utils/tests/const.py
+cbaxter1988_utils/tests/test_auth_utils.py
+cbaxter1988_utils/tests/test_aws_cognito_utils.py
 cbaxter1988_utils/tests/test_core_utils.py
 cbaxter1988_utils/tests/test_dataclass_utils.py
 cbaxter1988_utils/tests/test_flask_utils.py
