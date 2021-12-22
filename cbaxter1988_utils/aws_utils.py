@@ -76,3 +76,7 @@ def get_dynamo_table(table_id: str):
     resource = boto3.resource('dynamodb')
 
     return resource.Table(table_id)
+
+
+def get_cognito_idp_client():
+    return get_boto3_client('cognito-idp')
