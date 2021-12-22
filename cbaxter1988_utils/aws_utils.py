@@ -18,7 +18,7 @@ def get_boto3_client(service):
         service,
         region_name=get_env(key="AWS_DEFAULT_REGION"),
         aws_access_key_id=get_env(key="AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=get_env(key="AWS_SECRET_ACCESS_KEY_ID")
+        aws_secret_access_key=get_env(key="AWS_SECRET_ACCESS_KEY")
     )
 
 
