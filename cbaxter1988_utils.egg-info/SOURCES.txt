@@ -21,6 +21,7 @@ cbaxter1988_utils/pagination_utils.py
 cbaxter1988_utils/pika_utils.py
 cbaxter1988_utils/pymongo_utils.py
 cbaxter1988_utils/requests_utils.py
+cbaxter1988_utils/serialization_utils.py
 cbaxter1988_utils/test_utils.py
 cbaxter1988_utils/time_utils.py
 cbaxter1988_utils.egg-info/PKG-INFO
@@ -48,3 +49,4 @@ cbaxter1988_utils/tests/test_flask_utils.py
 cbaxter1988_utils/tests/test_pagination_utils.py
 cbaxter1988_utils/tests/test_pika_utils.py
 cbaxter1988_utils/tests/test_pymongo_utils.py
+cbaxter1988_utils/tests/test_serialization_utils.py
