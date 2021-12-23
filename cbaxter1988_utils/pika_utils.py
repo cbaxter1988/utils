@@ -307,6 +307,7 @@ def open_channel_from_connection(connection: BlockingConnection) -> BlockingChan
         logger.debug(f"Opened Channel: {channel.channel_number}")
         return channel
     else:
+
         raise PikaUtilsError(f"{connection} is Closed")
 
 
@@ -388,6 +389,8 @@ class PikaQueueServiceWrapper:
             dlq_routing_key: str = None
     ):
         queue_arguments = {}
+        if self.connection_adapter.connection.is_closed:
+            self.connection_adapter = BlockingConnectionAdapter(amqp_url=self.amqp_url)
 
         if dlq_support:
             create_queue(connection=self.connection_adapter.connection, queue=dlq_queue)
