@@ -31,9 +31,9 @@ class CustomJSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-def serialize_object(o: Any, b64_decode: bool = False) -> Union[str, bytes]:
+def serialize_object(o: Any, b64_encode: bool = False) -> Union[str, bytes]:
     serialized_object = json.dumps(o, cls=CustomJSONEncoder)
-    if b64_decode:
+    if b64_encode:
         return b64encode(serialized_object.encode())
     else:
         return serialized_object

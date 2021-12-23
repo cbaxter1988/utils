@@ -87,7 +87,7 @@ def b64_test_object():
 
 
 def test_serialize_object_when_decoding_base64(test_car_object, b64_test_object):
-    data_bytes = serialize_object(test_car_object, b64_decode=True)
+    data_bytes = serialize_object(test_car_object, b64_encode=True)
     assert data_bytes == b64_test_object
     assert isinstance(data_bytes, bytes)
 
