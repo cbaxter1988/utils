@@ -8,6 +8,7 @@ cbaxter1988_utils/aws_cognito_utils.py
 cbaxter1988_utils/aws_dynamodb_utils.py
 cbaxter1988_utils/aws_event_bridge_utils.py
 cbaxter1988_utils/aws_lambda_utils.py
+cbaxter1988_utils/aws_secrets_manager_utils.py
 cbaxter1988_utils/aws_utils.py
 cbaxter1988_utils/cloudwatch_utils.py
 cbaxter1988_utils/core_utils.py
