@@ -8,8 +8,21 @@ from cbaxter1988_utils.pymongo_utils import (
     get_database,
     get_item,
     safe_update_item,
-    safe_delete_item
+    safe_delete_item,
+    add_database_admin_user
 )
+from pytest import fixture
+
+
+@fixture()
+def internal_database():
+    client = get_client(
+        db_host="192.168.1.5",
+        db_port=27017
+    )
+    db = get_database(client=client, db_name='LOCAL_BOE_MVP')
+
+    return db
 
 
 @dataclass
@@ -20,7 +33,7 @@ class PersonModel:
     version: int = 1
 
 
-def test_occ_update():
+def _test_occ_update():
     person_model = PersonModel(
         _id=uuid5(NAMESPACE_DNS, f'Elijah'),
         first_name='Elijah',
@@ -50,3 +63,17 @@ def test_occ_update():
     )
 
     resp = safe_delete_item(collection=collection, item_id=elijah_id, expected_version=1)
+
+
+def _test_add_database_admin_user(internal_database):
+    add_database_admin_user(
+        database=internal_database,
+        username='admin',
+        password='admin'
+    )
+
+
+def test_add_item(internal_database):
+    collection = get_collection(database=internal_database, collection="LOCAL_BANK_ACCOUNT_AGGREGATE_TABLE")
+    result = add_item(collection=collection, item={"test": "test"})
+    print(result.acknowledged)

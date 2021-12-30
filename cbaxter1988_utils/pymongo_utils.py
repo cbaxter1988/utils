@@ -19,15 +19,17 @@ logger = get_logger(__name__)
 class InvalidUpdate(BaseException):
     """Exception for InvalidUpdate"""
 
+
 class InvalidDelete(BaseException):
     """Exception for InvalidUpdate"""
+
 
 def make_objectid() -> ObjectId:
     return ObjectId()
 
 
 def get_client(db_host, db_port=27017) -> MongoClient:
-    return MongoClient(host=db_host, port=db_port)
+    return MongoClient(host=db_host, port=db_port, username='admin', password='pimpin12')
 
 
 def get_database(client: MongoClient, db_name: str) -> Database:
@@ -182,3 +184,7 @@ def safe_delete_item(collection: Collection, item_id: Union[UUID, str], expected
         )
 
     return result
+
+
+def add_database_admin_user(database: Database, username, password):
+    database.command("createUser", username, pwd=password, roles=["dbAdmin"])
