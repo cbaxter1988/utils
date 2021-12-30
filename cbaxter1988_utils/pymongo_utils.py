@@ -29,7 +29,16 @@ def make_objectid() -> ObjectId:
 
 
 def get_client(db_host, db_port=27017) -> MongoClient:
-    return MongoClient(host=db_host, port=db_port, username='admin', password='pimpin12')
+    return MongoClient(host=db_host, port=db_port)
+
+
+def get_mongo_client_w_auth(
+        db_host: str,
+        db_username: str,
+        db_password: str,
+        db_port: int = 27017,
+) -> MongoClient:
+    return MongoClient(host=db_host, port=db_port, username=db_username, password=db_password)
 
 
 def get_database(client: MongoClient, db_name: str) -> Database:
@@ -186,5 +195,35 @@ def safe_delete_item(collection: Collection, item_id: Union[UUID, str], expected
     return result
 
 
-def add_database_admin_user(database: Database, username, password):
-    database.command("createUser", username, pwd=password, roles=["dbAdmin"])
+def add_database_user(database: Database, username, password, roles: List[str] = None):
+    if roles is None:
+        roles = []
+
+    return database.command("createUser", username, pwd=password, roles=roles)
+
+
+def add_database_user_rw(database: Database, username, password):
+    return database.command("createUser", username, pwd=password, roles=['readWrite'])
+
+
+def add_database_user_db_owner(database: Database, username, password):
+    """
+    The database owner can perform any administrative action on the database. This role combines the privileges granted by the readWrite, dbAdmin and userAdmin roles.
+
+
+    :param database:
+    :param username:
+    :param password:
+    :return:
+    """
+    return database.command("createUser", username, pwd=password, roles=['dbOwner'])
+
+
+def add_database_super_user(database: Database, username, password):
+    return database.command(
+        "createUser", username, pwd=password, roles=[
+            "userAdminAnyDatabase", "readWriteAnyDatabase"])
+
+
+def authenticate_database_basic(database: Database, username: str, password: str):
+    return database.authenticate(username, password=password)
