@@ -219,11 +219,17 @@ def add_database_user_db_owner(database: Database, username, password):
     return database.command("createUser", username, pwd=password, roles=['dbOwner'])
 
 
-def add_database_super_user(database: Database, username, password):
-    return database.command(
+def add_admin_database_super_user(client: MongoClient, username, password):
+    admin_db = get_database(db_name='admin', client=client)
+    return admin_db.command(
         "createUser", username, pwd=password, roles=[
             "userAdminAnyDatabase", "readWriteAnyDatabase"])
 
 
 def authenticate_database_basic(database: Database, username: str, password: str):
     return database.authenticate(username, password=password)
+
+
+def remove_admin_database_user(client: MongoClient, username):
+    admin_db = get_database(db_name='admin', client=client)
+    return admin_db.command('dropUser', username)
