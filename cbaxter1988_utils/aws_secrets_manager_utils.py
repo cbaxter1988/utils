@@ -1,3 +1,5 @@
+import json
+
 from cbaxter1988_utils.aws_utils import get_boto3_client
 
 
@@ -14,4 +16,4 @@ def get_credentials(secret_name: str) -> dict:
     if 'SecretString' in get_secret_value_response:
         secret = get_secret_value_response['SecretString']
 
-        return secret
+        return json.loads(secret)
