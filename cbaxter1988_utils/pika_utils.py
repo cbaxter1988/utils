@@ -161,8 +161,9 @@ class PikaQueueConsumer:
 class BasicPikaConsumer:
     """
     Marked for deprecation, DO NOT USE, Use PikaQueueConsumer instead.
-    
+
     """
+
     def __init__(
             self,
             connection_adapter: BlockingConnectionAdapter,
@@ -229,9 +230,6 @@ class BasicPikaConsumer:
 class PikaQueueServiceWrapper:
     def __init__(self, amqp_url: str):
         self.amqp_url = amqp_url
-        self.connection_adapter = BlockingConnectionAdapter(
-            amqp_url=amqp_url
-        )
 
         self._connection = get_blocking_connection(url=self.amqp_url)
 
@@ -244,8 +242,8 @@ class PikaQueueServiceWrapper:
             dlq_routing_key: str = None
     ):
         queue_arguments = {}
-        if self.connection_adapter.connection.is_closed:
-            self.connection_adapter = BlockingConnectionAdapter(amqp_url=self.amqp_url)
+        if self.connection.is_closed:
+            self._connection = get_blocking_connection(url=self.amqp_url)
 
         if dlq_support:
             create_queue(connection=self.connection, queue=dlq_queue)
@@ -266,12 +264,9 @@ class PikaQueueServiceWrapper:
     def delete_queue(self, queue: str, if_empty: bool = True):
         delete_queue(connection=self.connection, queue=queue, if_empty=if_empty)
 
-    # @property
-    # def connection(self) -> BlockingConnection:
-    #     if self.connection_adapter.connection.is_closed:
-    #         return get_blocking_connection(url=self.connection_adapter.amqp_url)
-    #     else:
-    #         return self.connection_adapter.connection
+    @property
+    def connection(self) -> BlockingConnection:
+        return self._connection
 
 
 def make_amqp_url(amqp_user, amqp_pw, amqp_host, amqp_port):
