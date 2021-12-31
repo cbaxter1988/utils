@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from cbaxter1988_utils.pika_utils import (
     make_basic_pika_publisher,
+    PikaQueueConsumer,
     PikaQueueServiceWrapper
 )
 from pytest import fixture
@@ -119,3 +120,12 @@ def test_pika_queue_service_wrapper_when_purging_queue(
     queue_wrapper = pika_queue_service_wrapper_testable
     queue_wrapper.purge_queue(queue=test_queue_name)
     blocking_connection_adapter_mock.assert_called()
+
+
+def test_pika_queue_consumer():
+    def on_message_callback(ch, method, properties, body):
+        print(ch, method, properties, body)
+
+    consumer = PikaQueueConsumer(amqp_url=AMQP_URL, queue_name='TEST_QUEUE', callback=on_message_callback)
+
+    consumer.consume()

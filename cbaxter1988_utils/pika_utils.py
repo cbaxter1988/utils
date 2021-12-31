@@ -137,8 +137,32 @@ class BasicPikaPublisher:
         return self.connection_adapter.channel
 
 
-class BasicPikaConsumer:
+class PikaQueueConsumer:
+    def __init__(self, amqp_url: str, queue_name: str, callback: callable):
+        self.connection = get_blocking_connection(url=amqp_url)
+        self._callback = callback
+        self._queue_name = queue_name
 
+    def consume(self, prefetch_count=None):
+        channel = open_channel_from_connection(connection=self.connection)
+        channel.basic_consume(queue=self._queue_name, on_message_callback=self._callback)
+        if prefetch_count:
+            set_channel_qos(channel=channel, prefetch_count=prefetch_count)
+
+        try:
+            channel.start_consuming()
+        except Exception:
+            logger.error(f"Exception Caught, Closing active channel: {channel.channel_number}")
+            channel.stop_consuming()
+            channel.close()
+            raise
+
+
+class BasicPikaConsumer:
+    """
+    Marked for deprecation, DO NOT USE, Use PikaQueueConsumer instead.
+    
+    """
     def __init__(
             self,
             connection_adapter: BlockingConnectionAdapter,
@@ -200,6 +224,54 @@ class BasicPikaConsumer:
 
         logger.info("Starting Consumer")
         self._consume()
+
+
+class PikaQueueServiceWrapper:
+    def __init__(self, amqp_url: str):
+        self.amqp_url = amqp_url
+        self.connection_adapter = BlockingConnectionAdapter(
+            amqp_url=amqp_url
+        )
+
+        self._connection = get_blocking_connection(url=self.amqp_url)
+
+    def create_queue(
+            self,
+            queue: str,
+            dlq_queue: str = None,
+            dlq_support: bool = False,
+            dlq_exchange: str = None,
+            dlq_routing_key: str = None
+    ):
+        queue_arguments = {}
+        if self.connection_adapter.connection.is_closed:
+            self.connection_adapter = BlockingConnectionAdapter(amqp_url=self.amqp_url)
+
+        if dlq_support:
+            create_queue(connection=self.connection, queue=dlq_queue)
+            create_exchange(connection=self.connection, exchange=dlq_exchange)
+            bind_queue(connection=self.connection, queue=dlq_queue, exchange=dlq_exchange,
+                       routing_key=dlq_routing_key)
+
+            queue_arguments['x-dead-letter-exchange'] = dlq_exchange
+            queue_arguments['x-dead-letter-routing-key'] = dlq_routing_key
+
+            logger.info(f'Prepared Pika Queue Arguments={queue_arguments}')
+
+        create_queue(connection=self.connection, queue=queue, arguments=queue_arguments)
+
+    def purge_queue(self, queue: str):
+        purge_queue(connection=self.connection, queue=queue)
+
+    def delete_queue(self, queue: str, if_empty: bool = True):
+        delete_queue(connection=self.connection, queue=queue, if_empty=if_empty)
+
+    # @property
+    # def connection(self) -> BlockingConnection:
+    #     if self.connection_adapter.connection.is_closed:
+    #         return get_blocking_connection(url=self.connection_adapter.amqp_url)
+    #     else:
+    #         return self.connection_adapter.connection
 
 
 def make_amqp_url(amqp_user, amqp_pw, amqp_host, amqp_port):
@@ -372,46 +444,6 @@ def nacknowledge_message(channel: BlockingChannel, delivery_tag):
     channel.basic_nack(delivery_tag=delivery_tag)
 
 
-class PikaQueueServiceWrapper:
-    def __init__(self, amqp_url: str):
-        self.amqp_url = amqp_url
-
-        self.connection_adapter = BlockingConnectionAdapter(
-            amqp_url=amqp_url
-        )
-
-    def create_queue(
-            self,
-            queue: str,
-            dlq_queue: str = None,
-            dlq_support: bool = False,
-            dlq_exchange: str = None,
-            dlq_routing_key: str = None
-    ):
-        queue_arguments = {}
-        if self.connection_adapter.connection.is_closed:
-            self.connection_adapter = BlockingConnectionAdapter(amqp_url=self.amqp_url)
-
-        if dlq_support:
-            create_queue(connection=self.connection_adapter.connection, queue=dlq_queue)
-            create_exchange(connection=self.connection_adapter.connection, exchange=dlq_exchange)
-            bind_queue(connection=self.connection_adapter.connection, queue=dlq_queue, exchange=dlq_exchange,
-                       routing_key=dlq_routing_key)
-
-            queue_arguments['x-dead-letter-exchange'] = dlq_exchange
-            queue_arguments['x-dead-letter-routing-key'] = dlq_routing_key
-
-            logger.info(f'Prepared Pika Queue Arguments={queue_arguments}')
-
-        create_queue(connection=self.connection_adapter.connection, queue=queue, arguments=queue_arguments)
-
-    def purge_queue(self, queue: str):
-        purge_queue(connection=self.connection_adapter.connection, queue=queue)
-
-    def delete_queue(self, queue: str, if_empty: bool = True):
-        delete_queue(connection=self.connection_adapter.connection, queue=queue, if_empty=if_empty)
-
-
 def make_basic_pika_publisher(amqp_url, exchange, queue, routing_key) -> BasicPikaPublisher:
     adapter = BlockingConnectionAdapter(amqp_url=amqp_url)
     return BasicPikaPublisher(connection_adapter=adapter, queue=queue, exchange=exchange, routing_key=routing_key)
@@ -420,3 +452,7 @@ def make_basic_pika_publisher(amqp_url, exchange, queue, routing_key) -> BasicPi
 def make_basic_pika_consumer(amqp_url, queue, on_message_callback: callable) -> BasicPikaConsumer:
     adapter = BlockingConnectionAdapter(amqp_url=amqp_url)
     return BasicPikaConsumer(connection_adapter=adapter, queue=queue, on_message_callback=on_message_callback)
+
+
+def make_pika_queue_consumer(amqp_url, queue, on_message_callback: callable) -> PikaQueueConsumer:
+    return PikaQueueConsumer(amqp_url=amqp_url, queue_name=queue, callback=on_message_callback)
