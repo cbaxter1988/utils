@@ -142,9 +142,15 @@ class PikaQueueConsumer:
         self.connection = get_blocking_connection(url=amqp_url)
         self._callback = callback
         self._queue_name = queue_name
+        self._amqp_url = amqp_url
 
     def consume(self, prefetch_count=None):
-        channel = open_channel_from_connection(connection=self.connection)
+        try:
+            channel = open_channel_from_connection(connection=self.connection)
+        except PikaUtilsError:
+            self.connection = get_blocking_connection(url=self._amqp_url)
+            channel = open_channel_from_connection(connection=self.connection)
+
         channel.basic_consume(queue=self._queue_name, on_message_callback=self._callback)
         if prefetch_count:
             set_channel_qos(channel=channel, prefetch_count=prefetch_count)
