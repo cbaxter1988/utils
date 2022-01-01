@@ -4,7 +4,8 @@ from http import HTTPStatus
 from typing import Union, List
 
 import flask
-from cbaxter1988_utils.models.http_models.problem_detail_rfc_7807_model import ProblemDetailModel, PROBLEM_DETAIL_HEADER_JSON
+from cbaxter1988_utils.models.http_models.problem_detail_rfc_7807_model import ProblemDetailModel, \
+    PROBLEM_DETAIL_HEADER_JSON
 
 
 def build_problem_detail_response(
@@ -46,7 +47,7 @@ occurrence of the problem.
     )
 
 
-def build_json_response(status: http.HTTPStatus, payload: Union[dict, str]) -> flask.Response:
+def build_json_response(status: Union[http.HTTPStatus, int], payload: Union[dict, str]) -> flask.Response:
     """
     Returns Flask.Response as content-type JSON
 
