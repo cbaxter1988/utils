@@ -1,8 +1,10 @@
 import json
+import threading
+from functools import partial
 from typing import Any
 
 from cbaxter1988_utils.log_utils import get_logger
-from pika import BlockingConnection, URLParameters
+from pika import BlockingConnection, URLParameters, ConnectionParameters, PlainCredentials
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.exceptions import ChannelClosed, ChannelClosedByBroker
 from pika.exchange_type import ExchangeType
@@ -143,6 +145,7 @@ class PikaQueueConsumer:
         self._callback = callback
         self._queue_name = queue_name
         self._amqp_url = amqp_url
+        self.threads = []
 
     def consume(self, prefetch_count=None):
         try:
@@ -151,7 +154,16 @@ class PikaQueueConsumer:
             self.connection = get_blocking_connection(url=self._amqp_url)
             channel = open_channel_from_connection(connection=self.connection)
 
-        channel.basic_consume(queue=self._queue_name, on_message_callback=self._callback)
+        def on_message(channel, method_frame, header_frame, body, args):
+            (connection, threads) = args
+            delivery_tag = method_frame.delivery_tag
+            t = threading.Thread(target=self._callback, args=(channel, delivery_tag, body))
+            t.start()
+            threads.append(t)
+
+        on_message_callback = partial(on_message, args=(self.connection, self.threads))
+
+        channel.basic_consume(queue=self._queue_name, on_message_callback=on_message_callback)
         if prefetch_count:
             set_channel_qos(channel=channel, prefetch_count=prefetch_count)
 
@@ -160,77 +172,7 @@ class PikaQueueConsumer:
         except Exception:
             logger.error(f"Exception Caught, Closing active channel: {channel.channel_number}")
             channel.stop_consuming()
-            channel.close()
             raise
-
-
-class BasicPikaConsumer:
-    """
-    Marked for deprecation, DO NOT USE, Use PikaQueueConsumer instead.
-
-    """
-
-    def __init__(
-            self,
-            connection_adapter: BlockingConnectionAdapter,
-            queue,
-            on_message_callback: callable
-    ):
-
-        self.connection_adapter = connection_adapter
-        self.on_message_callback = on_message_callback
-        self.queue = queue
-
-        self.pika_queue_service_wrapper = PikaQueueServiceWrapper(amqp_url=self.connection_adapter.amqp_url)
-
-    def _consume(self):
-        if self.connection_adapter.connection.is_open and self.connection_adapter.channel.is_open:
-
-            try:
-                self.connection_adapter.channel.basic_consume(self.queue, self.on_message_callback)
-                logger.info(f'Awaiting Message on channel: {self.connection_adapter.channel.channel_number}')
-                self.connection_adapter.channel.start_consuming()
-
-
-            except KeyboardInterrupt:
-                self.connection_adapter.channel.stop_consuming()
-
-            except ChannelClosedByBroker:
-                raise
-        else:
-            self.connection_adapter.connect()
-
-            self.connection_adapter.channel.basic_consume(self.queue, self.on_message_callback)
-            self.connection_adapter.channel.start_consuming()
-
-    def _validate_queue(self):
-        logger.info(f"Validating Queue: '{self.queue}'")
-        # self.pika_queue_service_wrapper.create_queue(
-        #     queue=self.queue,
-        #
-        # )
-        # conn = self.connection_adapter.connection
-        # if not validate_queue(conn, queue=self.queue):
-        #     logger.info(f"{self.queue} not present")
-        #     create_queue(conn, queue=self.queue)
-
-        #
-        # else:
-        #     logger.info(f'({self.queue}) has been validated')
-
-    def run(self):
-        # self._validate_queue()
-
-        if self.connection_adapter.connection.is_closed:
-            logger.info("Connection Closed, Reopening")
-            self.connection_adapter.connect()
-
-        if self.connection_adapter.channel.is_closed:
-            logger.info("Channel Closed, Reopening")
-            self.connection_adapter.get_channel()
-
-        logger.info("Starting Consumer")
-        self._consume()
 
 
 class PikaQueueServiceWrapper:
@@ -413,7 +355,23 @@ def set_channel_qos(channel: BlockingChannel, prefetch_count):
 def get_blocking_connection(url) -> BlockingConnection:
     logger.info(f"Connecting to URL: '{url}'")
     return BlockingConnection(
-        parameters=URLParameters(url=url)
+        parameters=URLParameters(url=url),
+
+    )
+
+
+def get_blocking_connection_v2(amqp_host, amqp_user, amqp_pw, heartbeat=0) -> BlockingConnection:
+    logger.info(f"Connecting to AMQP Host: '{amqp_host}'")
+    return BlockingConnection(
+        parameters=ConnectionParameters(
+            host=amqp_host,
+            credentials=PlainCredentials(
+                username=amqp_user,
+                password=amqp_pw
+            ),
+            heartbeat=heartbeat
+        )
+
     )
 
 
@@ -450,10 +408,21 @@ def make_basic_pika_publisher(amqp_url, exchange, queue, routing_key) -> BasicPi
     return BasicPikaPublisher(connection_adapter=adapter, queue=queue, exchange=exchange, routing_key=routing_key)
 
 
-def make_basic_pika_consumer(amqp_url, queue, on_message_callback: callable) -> BasicPikaConsumer:
-    adapter = BlockingConnectionAdapter(amqp_url=amqp_url)
-    return BasicPikaConsumer(connection_adapter=adapter, queue=queue, on_message_callback=on_message_callback)
-
-
 def make_pika_queue_consumer(amqp_url, queue, on_message_callback: callable) -> PikaQueueConsumer:
+    """
+    Creates a Thread Safe Consumer, This consumer
+
+
+    When Defining a callback function use the following signature:
+
+    def on_message_callback(channel, delivery_tag, body):
+        pass
+
+
+    Th
+    :param amqp_url:
+    :param queue:
+    :param on_message_callback:
+    :return:
+    """
     return PikaQueueConsumer(amqp_url=amqp_url, queue_name=queue, callback=on_message_callback)
