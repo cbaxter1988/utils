@@ -3,9 +3,14 @@ import os
 import threading
 
 import pika
-from cbaxter1988_utils.pika_utils import PikaQueueConsumerV2, make_pika_publisher
+from cbaxter1988_utils.pika_utils import PikaQueueConsumerV2, make_pika_publisher, make_pika_service_wrapper
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic, BasicProperties
+
+AMQP_USER = os.getenv("AMQP_USER", 'guest')
+AMQP_PW = os.getenv("AMQP_PW", 'guest')
+AMQP_HOST = os.getenv("AMQP_HOST", '192.168.1.5')
+AMQP_PORT = os.getenv("AMQP_PORT", 5672)
 
 
 def dev_make_pika_queue_consumer():
@@ -38,11 +43,6 @@ def dev_make_pika_queue_consumer():
 
 
 def dev_make_pika_publisher():
-    AMQP_USER = os.getenv("AMQP_USER", 'guest')
-    AMQP_PW = os.getenv("AMQP_PW", 'guest')
-    AMQP_HOST = os.getenv("AMQP_HOST", '192.168.1.5')
-    AMQP_PORT = os.getenv("AMQP_PORT", 5672)
-
     publisher = make_pika_publisher(
         amqp_host=AMQP_HOST,
         amqp_password=AMQP_PW,
@@ -58,4 +58,23 @@ def dev_make_pika_publisher():
     )
 
 
-dev_make_pika_publisher()
+def dev_make_pika_service_wrapper():
+    service_wrapper = make_pika_service_wrapper(
+        amqp_host=AMQP_HOST,
+        amqp_username=AMQP_USER,
+        amqp_password=AMQP_PW,
+    )
+
+    service_wrapper.create_queue(
+        queue="TEST_QUEUE_2",
+        dlq_support=True,
+        dlq_queue='TEST_DLQ_QUEUE',
+        dlq_exchange='TEST_DLQ_EXCHANGE',
+        dlq_routing_key='TEST_DLQ_ROUTING_KEY'
+    )
+
+    #
+    # service_wrapper.delete_queue(queue='TEST_DLQ_QUEUE')
+
+# dev_make_pika_service_wrapper()
+# dev_make_pika_queue_consumer()

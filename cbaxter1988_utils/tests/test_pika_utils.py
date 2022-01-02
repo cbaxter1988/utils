@@ -4,7 +4,7 @@ from unittest.mock import patch
 from cbaxter1988_utils.pika_utils import (
     make_basic_pika_publisher,
     PikaQueueConsumer,
-    PikaQueueServiceWrapper
+    PikaServiceWrapper
 )
 from pytest import fixture
 
@@ -64,7 +64,7 @@ def basic_pika_publisher_testable(test_queue_name, test_queue_exchange_name, tes
 
 @fixture
 def pika_queue_service_wrapper_testable():
-    return PikaQueueServiceWrapper(
+    return PikaServiceWrapper(
         amqp_url=AMQP_URL,
 
     )
