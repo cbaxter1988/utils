@@ -1,10 +1,10 @@
 import os
 import threading
-import time
 
-from cbaxter1988_utils.pika_utils import make_pika_queue_consumer
-
-
+import pika.adapters.blocking_connection
+from cbaxter1988_utils.pika_utils import PikaQueueConsumerV2
+from pika.spec import Basic, BasicProperties
+from pika.adapters.blocking_connection import BlockingChannel
 def dev_make_pika_queue_consumer():
     AMQP_USER = os.getenv("AMQP_USER", 'guest')
     AMQP_PW = os.getenv("AMQP_PW", 'guest')
@@ -13,18 +13,25 @@ def dev_make_pika_queue_consumer():
 
     AMQP_URL = os.getenv("AMPQ_URL", f"amqp://{AMQP_USER}:{AMQP_PW}@{AMQP_HOST}:{AMQP_PORT}")
 
-    def on_message_callback(channel, delivery_tag, body):
+    def on_message_callback(ch: BlockingChannel, method: Basic.Deliver, properties: BasicProperties, body: bytes):
         print("thread_id", threading.get_ident())
-        print(channel, delivery_tag, body)
-        print('Sleeping')
-        time.sleep(180)
-        print('Sleep Complete')
-        # if b'error' in body:
-        #     channel.basic_nack(delivery_tag=delivery_tag, requeue=False)
-        #     raise Exception("UnHanldled exception")
+        print(ch, method.delivery_tag, body)
+        if b'error' in body:
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+            raise Exception("UnHanldled exception")
 
-        channel.basic_ack(delivery_tag)
+        ch.basic_ack(method.delivery_tag)
 
-    consumer = make_pika_queue_consumer(amqp_url=AMQP_URL, queue='TEST_QUEUE', on_message_callback=on_message_callback)
+    # consumer = make_pika_queue_consumer(amqp_url=AMQP_URL, queue='TEST_QUEUE', on_message_callback=on_message_callback)
+    consumer = PikaQueueConsumerV2(
+        amqp_host='192.168.1.5',
+        amqp_username='guest',
+        amqp_password='guest',
+        callback=on_message_callback,
+        queue_name='TEST_QUEUE',
+        heartbeat=0
+    )
+    consumer.consume(prefetch_count=10)
 
-    consumer.consume(prefetch_count=1)
+
+dev_make_pika_queue_consumer()

@@ -175,6 +175,51 @@ class PikaQueueConsumer:
             raise
 
 
+class PikaQueueConsumerV2:
+    def __init__(
+            self,
+            amqp_host: str,
+            amqp_username: str,
+            amqp_password: str,
+            queue_name: str,
+            callback: callable,
+            heartbeat: int = 60,
+    ):
+
+        self._connection_func = partial(
+            get_blocking_connection_v2,
+            amqp_host=amqp_host,
+            amqp_user=amqp_username,
+            amqp_pw=amqp_password,
+            heartbeat=heartbeat
+        )
+
+        self.connection = self._connection_func()
+        self._callback = callback
+        self._queue_name = queue_name
+
+        self.threads = []
+
+    def consume(self, prefetch_count=None):
+        try:
+
+            channel = open_channel_from_connection(connection=self.connection)
+        except PikaUtilsError:
+            self.connection = self._connection_func()
+            channel = open_channel_from_connection(connection=self.connection)
+
+        channel.basic_consume(queue=self._queue_name, on_message_callback=self._callback)
+        if prefetch_count:
+            set_channel_qos(channel=channel, prefetch_count=prefetch_count)
+
+        try:
+            channel.start_consuming()
+        except Exception:
+            logger.error(f"Unknown Exception Caught, Closing active channel: {channel.channel_number}")
+            channel.stop_consuming()
+            raise
+
+
 class PikaQueueServiceWrapper:
     def __init__(self, amqp_url: str):
         self.amqp_url = amqp_url
@@ -426,3 +471,29 @@ def make_pika_queue_consumer(amqp_url, queue, on_message_callback: callable) -> 
     :return:
     """
     return PikaQueueConsumer(amqp_url=amqp_url, queue_name=queue, callback=on_message_callback)
+
+
+def make_pika_queue_consumer_v2(
+        amqp_host,
+        amqp_username,
+        amqp_password,
+        queue,
+        on_message_callback: callable,
+) -> PikaQueueConsumerV2:
+    """
+     When Defining a callback function use the following signature:
+
+    from pika.adapters.blocking_connection import BlockingChannel
+    from pika.spec import Basic, BasicProperties
+
+    def on_message_callback(ch: BlockingChannel, method: Basic.Deliver, properties: BasicProperties, body: bytes):
+        # Your Code Here
+
+    """
+    return PikaQueueConsumerV2(
+        amqp_host=amqp_host,
+        amqp_username=amqp_username,
+        amqp_password=amqp_password,
+        queue_name=queue,
+        callback=on_message_callback
+    )
