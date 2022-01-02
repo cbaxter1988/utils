@@ -15,6 +15,7 @@ class RabbitConnection:
     RabbitMQ Connection Context Manager
 
     """
+
     def __init__(self, host, user, password, port=5672, heartbeat=60):
         self.host = host
         self.user = user
@@ -165,7 +166,13 @@ class PikaServiceWrapper:
         ) as channel:
             channel.queue_delete(queue=queue, if_empty=if_empty, if_unused=if_unused)
 
-    def create_exchange(self, exchange, exchange_type: pika.spec.ExchangeType, passive: bool = False):
+    def create_exchange(
+            self,
+            exchange,
+            exchange_type: pika.spec.ExchangeType,
+            passive: bool = False,
+            auto_delete: bool = False
+    ):
         with RabbitConnection(
                 host=self.amqp_host,
                 user=self.amqp_username,
@@ -175,7 +182,8 @@ class PikaServiceWrapper:
             channel.exchange_declare(
                 exchange=exchange,
                 exchange_type=exchange_type.value,
-                passive=passive
+                passive=passive,
+                auto_delete=auto_delete
             )
 
     def bind_queue(self, queue: str, exchange: str, routing_key: str = None):
