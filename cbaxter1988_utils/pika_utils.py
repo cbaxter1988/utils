@@ -3,6 +3,7 @@ import threading
 from functools import partial
 from typing import Any
 
+import pika
 from cbaxter1988_utils.log_utils import get_logger
 from pika import BlockingConnection, URLParameters, ConnectionParameters, PlainCredentials
 from pika.adapters.blocking_connection import BlockingChannel
@@ -173,6 +174,58 @@ class PikaQueueConsumer:
             logger.error(f"Exception Caught, Closing active channel: {channel.channel_number}")
             channel.stop_consuming()
             raise
+
+
+class PikaPublisher:
+    def __init__(
+            self,
+            amqp_host: str,
+            amqp_username: str,
+            amqp_password: str,
+            heartbeat: int = 60,
+    ):
+        self.amqp_host = amqp_host
+        self.amqp_username = amqp_username
+        self.amqp_password = amqp_password
+        self.heartbeat = heartbeat
+
+    def publish_message(self, exchange: str, routing_key: str, body: bytes, properties: pika.BasicProperties = None):
+        with RabbitConnection(
+                host=self.amqp_host,
+                user=self.amqp_username,
+                password=self.amqp_password,
+                heartbeat=self.heartbeat
+        ) as channel:
+            channel.basic_publish(
+                exchange=exchange,
+                routing_key=routing_key,
+                body=body,
+                properties=properties
+            )
+
+
+class RabbitConnection:
+    def __init__(self, host, user, password, port=5672, heartbeat=60):
+        self.host = host
+        self.user = user
+        self.password = password
+        self.port = port
+        self.heartbeat = heartbeat
+
+    def __enter__(self):
+        credentials = pika.PlainCredentials(self.user, self.password)
+        parameters = pika.ConnectionParameters(
+            host=self.host,
+            port=self.port,
+            credentials=credentials,
+            heartbeat=self.heartbeat
+        )
+        self.connection = pika.BlockingConnection(parameters)
+        self.channel = self.connection.channel()
+        return self.channel
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        self.connection.close()
 
 
 class PikaQueueConsumerV2:
@@ -496,4 +549,19 @@ def make_pika_queue_consumer_v2(
         amqp_password=amqp_password,
         queue_name=queue,
         callback=on_message_callback
+    )
+
+
+def make_pika_publisher(
+        amqp_host,
+        amqp_username,
+        amqp_password,
+
+        heartbeat=60
+):
+    return PikaPublisher(
+        amqp_host=amqp_host,
+        amqp_username=amqp_username,
+        amqp_password=amqp_password,
+        heartbeat=heartbeat
     )

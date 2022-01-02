@@ -1,10 +1,13 @@
+import json
 import os
 import threading
 
-import pika.adapters.blocking_connection
-from cbaxter1988_utils.pika_utils import PikaQueueConsumerV2
-from pika.spec import Basic, BasicProperties
+import pika
+from cbaxter1988_utils.pika_utils import PikaQueueConsumerV2, make_pika_publisher
 from pika.adapters.blocking_connection import BlockingChannel
+from pika.spec import Basic, BasicProperties
+
+
 def dev_make_pika_queue_consumer():
     AMQP_USER = os.getenv("AMQP_USER", 'guest')
     AMQP_PW = os.getenv("AMQP_PW", 'guest')
@@ -34,4 +37,25 @@ def dev_make_pika_queue_consumer():
     consumer.consume(prefetch_count=10)
 
 
-dev_make_pika_queue_consumer()
+def dev_make_pika_publisher():
+    AMQP_USER = os.getenv("AMQP_USER", 'guest')
+    AMQP_PW = os.getenv("AMQP_PW", 'guest')
+    AMQP_HOST = os.getenv("AMQP_HOST", '192.168.1.5')
+    AMQP_PORT = os.getenv("AMQP_PORT", 5672)
+
+    publisher = make_pika_publisher(
+        amqp_host=AMQP_HOST,
+        amqp_password=AMQP_PW,
+        amqp_username=AMQP_USER
+    )
+
+    publisher.publish_message(
+        exchange='TEST_EXCHANGE',
+        routing_key='TEST_QUEUE',
+        properties=pika.BasicProperties(content_type='application/json'),
+        body=json.dumps({"msg": "test message"})
+
+    )
+
+
+dev_make_pika_publisher()
