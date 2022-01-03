@@ -11,7 +11,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='cbaxter1988_utils',
-    version='0.9.3',
+    version='0.9.4',
     url='https://github.com/cbaxter1988/utils.git',
     description='A Package containing my utils',
     author='Courtney S Baxter Jr',
