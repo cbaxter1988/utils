@@ -2,7 +2,6 @@ from typing import Union, List
 from uuid import UUID
 
 from bson import ObjectId
-from bson.binary import UuidRepresentation
 from cbaxter1988_utils.log_utils import get_logger
 from cbaxter1988_utils.pagination_utils import BasePaginator, BasePage
 from pymongo import MongoClient
@@ -38,7 +37,7 @@ def get_mongo_client_w_auth(
         db_username: str,
         db_password: str,
         db_port: int = 27017,
-        uuid_representation: UuidRepresentation = UuidRepresentation.STANDARD
+        uuid_representation: str = 'standard'
 ) -> MongoClient:
     return MongoClient(
         host=db_host,
